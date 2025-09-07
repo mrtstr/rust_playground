@@ -1,8 +1,67 @@
 [package]
-name = "hello-rust"
+name = "my_project"
 version = "0.1.0"
 edition = "2021"
+description = "A sample Rust project"
+license = "MIT"
+
 
 [dependencies]
-polars = { version = "*", features = ["lazy"]}
+tokio = { version = "1", features = ["full"] }
+# An asynchronous runtime for Rust (async/await support).
 chrono = "*"
+clap = { version = "4", features = ["derive"] }
+anyhow = "1" 
+
+
+# --- dataframes ---
+polars = { version = "*", features = ["lazy"]}
+arrow = "*"
+
+
+# --- IO helpers ---
+csv = "1"                                                        # data IO
+serde = { version = "1", features = ["derive"] }
+# for serializing and deserializing JSON, YAML, TOML
+parquet = "*"
+datafusion = "*"
+
+# Nice builder ergonomics; async readers/writers
+opendal = "*"
+
+# --- NumPy-like arrays ---
+ndarray = { version = "0.16.0", features = ["approx", "rayon"] }   # n-d arrays + parallel iter (via rayon)
+ndarray-linalg = "0.17.0"                                          # BLAS/LAPACK-based linalg (SVD, eig, etc.)
+
+# --- Random & statistics ---
+rand = "0.8"
+rand_distr = "0.4"
+statrs = "0.18.0"                                                  # distributions, basic tests, stats
+
+# --- Optimization ---
+argmin = { version = "0.10.0", features = ["nalgebra"] }            # solvers (GD, BFGS, LBFGS, Newton, etc.)
+
+# # --- FFT / signal processing ---
+# rustfft = "6"
+# realfft = "3"
+
+# # --- Sparse matrices ---
+# sprs = "0.11"
+
+# # --- Integration / ODEs ---
+# quad = "0.1.2"                                                     # numerical integration (1D)
+
+# --- Parallelism & perf ---
+rayon = "1.10"
+
+# --- (Optional) plotting & ML ---
+plotters = "0.3"                                                 # plotting
+# linfa = "0.7"                                                    # scikit-learn-ish ML toolkit (optional)
+
+
+[dev-dependencies]
+criterion = "0.7.0"
+
+[features]
+default = ["cli"]
+cli = []
