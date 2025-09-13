@@ -52,7 +52,9 @@ fn main() -> color_eyre::eyre::Result<()> {
     let p = std::path::Path::new(&args.path);
     if args.op == Op::Read {
         let file = File::open(p)?;
-        let my_df: DataFrame = ParquetReader::new(file).finish()?;
+        let reader = std::io::BufReader::new(file);
+        let my_df: DataFrame = ParquetReader::new(reader).finish()?;  // memory buffer that can speed things up
+        // let my_df: DataFrame = ParquetReader::new(file).finish()?; // no buffer
         println!("read dataframe {my_df}");
     } else {
         let mut my_df = create_df()?;
