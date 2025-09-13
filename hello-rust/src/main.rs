@@ -1,8 +1,9 @@
 use clap::{Parser, ValueEnum};
 use anyhow::{Result, bail};
-use polars::prelude::*;
+use polars::prelude::{DataFrame, PolarsResult, ParquetCompression, ParquetReader, ParquetWriter, SerReader};
 use std::fs::File;
 use std::path::Path;
+use polars::df;
 
 /// A minimal calculator CLI
 #[derive(Parser, Debug)]
@@ -11,21 +12,19 @@ struct Cli {
     /// First operand
     path: String,
 
-    /// Partition columns (use multiple values)
-    #[arg(long, num_args = 1..)]
-    part_columns: Vec<String>,
+    // /// Partition columns (use multiple values)
+    // #[arg(long, num_args = 1..)]
+    // part_columns: Vec<String>,
 
     /// Operation to apply
-    #[arg(long, value_enum, default_value_t = Op::Add)]
+    #[arg(long, value_enum, default_value_t = Op::Read)]
     op: Op,
 }
 
-#[derive(Copy, Clone, Debug, ValueEnum)]
+#[derive(Copy, Clone, Debug, ValueEnum, PartialEq, Eq)]
 enum Op {
-    Add,
-    Sub,
-    Mul,
-    Div,
+    Read,
+    Write,
 }
 
 fn create_df() -> PolarsResult<DataFrame> {
@@ -49,11 +48,18 @@ fn write_parquet(df: &mut DataFrame, path: impl AsRef<Path>) -> Result<()> {
 fn main() -> Result<()> {
     let args = Cli::parse();
 
-    let mut df = create_df()?;
-    write_parquet(&mut df, &args.path)?;
+    let p = std::path::Path::new(&args.path);
+    if args.op == Op::Read {
+        let file = File::open(p)?;
+        let my_df: DataFrame = ParquetReader::new(file).finish()?;
+        println!("read dataframe {my_df}");
+    } else {
+        let mut my_df = create_df()?;
+        write_parquet(&mut my_df, &args.path)?;
+        println!("Wrote parquet to {}", p.display());
+    }
 
 
-    println!("Sucessfully saved the following df und {} \n{df}", args.path);
-    // println!("{}, {:?}", args.path, args.part_columns);
+    println!("Sucessfully executed operation {:?} on path {}", args.op, args.path);
     Ok(())
 }
