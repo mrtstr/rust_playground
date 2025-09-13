@@ -1,5 +1,5 @@
 use clap::{Parser, ValueEnum};
-use anyhow::{Result, bail};
+use anyhow::{Result};
 use polars::prelude::{DataFrame, PolarsResult, ParquetCompression, ParquetReader, ParquetWriter, SerReader};
 use std::fs::File;
 use std::path::Path;
@@ -37,7 +37,7 @@ fn create_df() -> PolarsResult<DataFrame> {
     Ok(df)
 }
 
-fn write_parquet(df: &mut DataFrame, path: impl AsRef<Path>) -> Result<()> {
+fn write_parquet(df: &mut DataFrame, path: impl AsRef<Path>) -> color_eyre::eyre::Result<()> {
     let file = File::create(path)?;
     ParquetWriter::new(file)
         .with_compression(ParquetCompression::Snappy)
@@ -45,7 +45,8 @@ fn write_parquet(df: &mut DataFrame, path: impl AsRef<Path>) -> Result<()> {
     Ok(())
 }
 
-fn main() -> Result<()> {
+fn main() -> color_eyre::eyre::Result<()> {
+    color_eyre::install()?; // enables pretty error reports
     let args = Cli::parse();
 
     let p = std::path::Path::new(&args.path);
