@@ -2,6 +2,7 @@ use clap::{Parser, ValueEnum};
 use polars::prelude::{DataFrame, PolarsResult, ParquetCompression, ParquetReader, ParquetWriter, SerReader};
 use std::fs::File;
 use std::path::Path;
+
 use polars::prelude::*;
 use rayon::prelude::*;
 use color_eyre::eyre::{WrapErr, Result};

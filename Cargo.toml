@@ -5,6 +5,9 @@ edition = "2021"
 description = "A sample Rust project"
 license = "MIT"
 
+[lib]
+name = "rustpy"                  # the Python module name
+crate-type = ["cdylib"]          # <-- important
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
@@ -15,11 +18,21 @@ anyhow = { version = "1.0", features = ["backtrace"] }
 color-eyre = "0.6"
 rayon = "*"
 # --- dataframes ---
-polars = { version = "*", features = ["lazy", "polars-io", "parquet", "fmt", "diagonal_concat"]}
 arrow = "*"
-pyo3 = { version = "*", features = ["extension-module"] }
-pyo3-polars = { version = "*", features = ["polars-lazy"] }  
+# Match pyo3-polars' pyo3 (0.25 as of 0.24.0)
+pyo3 = { version = "0.25", features = ["extension-module"] }
 
+# pyo3-polars 0.24.0 (enable lazy if you need it)
+pyo3-polars = { version = "0.24.0", features = ["lazy"] }
+
+# Add a direct Polars dep to *unify features* and turn on diagonal_concat
+polars = { version = "0.51", default-features = false, features = [
+  "lazy",
+  "parquet",
+  "fmt",
+  "diagonal_concat",
+  "dtype-array"      # <-- IMPORTANT
+] }
 # --- IO helpers ---
 csv = "1"                                                        # data IO
 serde = { version = "1", features = ["derive"] }
