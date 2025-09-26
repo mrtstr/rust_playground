@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "pyrust"
+version = "0.1.0"
+description = ""
+authors = ["mrtstr <martin0strauch@gmail.com>"]
+readme = "README.md"
+# optional: explicitly declare packages if your code is in a src/ layout
+packages = [{ include = "pysrc"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pyyaml = "^6.0.2"
+
+[tool.poetry.group.dev.dependencies]
+pandas = "^2.2.2"
+ipykernel = "^6.29.5"
+ipython = "*"
+pyarrow = "*"
+matplotlib = "*"
+tabulate = "*"
+scikit-learn = "*"
+polars = "*"
+yfinance = "*"
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"

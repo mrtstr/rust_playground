@@ -17,7 +17,8 @@ rayon = "*"
 # --- dataframes ---
 polars = { version = "*", features = ["lazy", "polars-io", "parquet", "fmt", "diagonal_concat"]}
 arrow = "*"
-
+pyo3 = { version = "*", features = ["extension-module"] }
+pyo3-polars = { version = "*", features = ["polars-lazy"] }  
 
 # --- IO helpers ---
 csv = "1"                                                        # data IO
