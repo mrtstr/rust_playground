@@ -1,9 +1,10 @@
 use clap::{Parser, ValueEnum};
-use anyhow::{Result};
 use polars::prelude::{DataFrame, PolarsResult, ParquetCompression, ParquetReader, ParquetWriter, SerReader};
 use std::fs::File;
 use std::path::Path;
-use polars::df;
+use polars::prelude::*;
+use rayon::prelude::*;
+use color_eyre::eyre::{WrapErr, Result};
 
 /// A minimal calculator CLI
 #[derive(Parser, Debug)]
@@ -25,6 +26,7 @@ struct Cli {
 enum Op {
     Read,
     Write,
+    Process,
 }
 
 fn create_df() -> PolarsResult<DataFrame> {
@@ -45,6 +47,17 @@ fn write_parquet(df: &mut DataFrame, path: impl AsRef<Path>) -> color_eyre::eyre
     Ok(())
 }
 
+fn per_partition(df: DataFrame) -> Result<DataFrame> {
+    let out = df.lazy()
+        .select([
+            col("score").sum().alias("score_sum"),
+            col("age").sum().alias("age_sum"),
+        ])
+        .collect()
+        .wrap_err("eager select failed")?; // <- returns DataFrame directly
+    Ok(out)
+}
+
 fn main() -> color_eyre::eyre::Result<()> {
     color_eyre::install()?; // enables pretty error reports
     let args = Cli::parse();
@@ -56,6 +69,19 @@ fn main() -> color_eyre::eyre::Result<()> {
         let my_df: DataFrame = ParquetReader::new(reader).finish()?;  // memory buffer that can speed things up
         // let my_df: DataFrame = ParquetReader::new(file).finish()?; // no buffer
         println!("read dataframe {my_df}");
+    } else if args.op == Op::Process {
+        let df = create_df()?;
+        let parts: Vec<DataFrame> = df.partition_by(["city"], true)
+            .wrap_err("partition_by(city) failed")?;
+    
+        let processed: Vec<DataFrame> = parts
+            .into_par_iter()
+            .map(per_partition)
+            .collect::<Result<_>>()?;
+    
+        let out:DataFrame  = polars::functions::concat_df_diagonal(&processed)
+            .wrap_err("concat_df failed")?;
+        println!("{out}");
     } else {
         let mut my_df = create_df()?;
         write_parquet(&mut my_df, &args.path)?;
@@ -66,3 +92,4 @@ fn main() -> color_eyre::eyre::Result<()> {
     println!("Sucessfully executed operation {:?} on path {}", args.op, args.path);
     Ok(())
 }
+
