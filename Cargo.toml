@@ -1,0 +1,16 @@
+[workspace]
+members = [
+    "cli_example",
+    "wrapped_example"
+]
+
+# Optional: prevent Cargo from searching for crates in other folders
+exclude = [
+    "pysrc",   # your Python code
+    "*.ipynb", # notebooks
+]
+
+# (optional) you can set shared dependencies if needed
+# [workspace.dependencies]
+# anyhow = "1.0"
+# polars = "0.39"
