@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pyrust"
+name = "wrapped_rust"
 version = "0.1.0"
 description = ""
 authors = ["mrtstr <martin0strauch@gmail.com>"]
@@ -20,8 +20,17 @@ matplotlib = "*"
 tabulate = "*"
 scikit-learn = "*"
 polars = "*"
-yfinance = "*"
+# yfinance = "*"
+maturin = "*"
+
+# [build-system]
+# requires = ["poetry-core>=2.0.0"]
+# build-backend = "poetry.core.masonry.api"
 
 [build-system]
-requires = ["poetry-core>=2.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+# point maturin at your Rust crate
+manifest-path = "wrapped_example/Cargo.toml"
