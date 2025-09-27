@@ -1,5 +1,5 @@
 [package]
-name = "wrapped_example"
+name = "wrapped_example_core"
 version = "0.1.0"
 edition = "2021"
 description = "A sample Rust project"
@@ -7,7 +7,7 @@ license = "MIT"
 
 
 [lib]
-name = "_wrapped_example"                  # <-- must match #[pymodule] fn _wrapped_example(...)
+name = "wrapped_example_core"                  # <-- must match #[pymodule] fn wrapped_example_core(...)
 crate-type = ["cdylib"]          # <-- important
 
 [dependencies]

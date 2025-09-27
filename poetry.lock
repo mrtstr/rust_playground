@@ -1895,7 +1895,22 @@ files = [
     {file = "wcwidth-0.2.14.tar.gz", hash = "sha256:4d478375d31bc5395a3c55c40ccdf3354688364cd61c4f6adacaa9215d0b3605"},
 ]
 
+[[package]]
+name = "wrapped_example_core"
+version = "0.1.0"
+description = "A sample Rust project"
+optional = false
+python-versions = "*"
+groups = ["dev"]
+files = [
+    {file = "wrapped_example_core-0.1.0-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:bc26b870315d3504ebe0cbed34edf34c0a0aad221aac550651f64e5b41aa3919"},
+]
+
+[package.source]
+type = "file"
+url = "dist/wrapped_example_core-0.1.0-cp312-cp312-musllinux_1_2_x86_64.whl"
+
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "4d6835c9bf7a2dd5b7595349e6f03b011aad441cb04b91ca5c9fa0e4645a2785"
+content-hash = "88944b9e53053942daba327cb709e7b9738af50b02261bce587596baff80489b"

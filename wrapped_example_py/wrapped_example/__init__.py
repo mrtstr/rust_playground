@@ -1,6 +1,6 @@
 from __future__ import annotations
 import polars as pl
-from _wrapped_example import df_sum_scores as _df_sum_scores
+from wrapped_example_core import df_sum_scores as _df_sum_scores
 
 __all__ = ["df_sum_scores"]
 

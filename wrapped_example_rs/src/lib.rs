@@ -2,7 +2,7 @@ use pyo3::prelude::*;
 use pyo3_polars::PyDataFrame;
 
 use polars::prelude::*;
-use polars::prelude::{col, lit, IntoLazy};
+use polars::prelude::{col, IntoLazy};
 
 
 /// Sum the "score" column and return a one-row DataFrame with "score_sum".
@@ -21,7 +21,7 @@ fn df_sum_scores(pydf: PyDataFrame) -> PyResult<PyDataFrame> {
 }
 
 #[pymodule]
-fn _wrapped_example(_py: Python<'_>, m: &Bound<PyModule>) -> PyResult<()> {
+fn wrapped_example_core(_py: Python<'_>, m: &Bound<PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(df_sum_scores, m)?)?;
     Ok(())
 }
