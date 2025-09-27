@@ -1,11 +1,13 @@
 [tool.poetry]
-name = "wrapped_rust"
+name = "python_package"
 version = "0.1.0"
 description = ""
 authors = ["mrtstr <martin0strauch@gmail.com>"]
 readme = "README.md"
 # optional: explicitly declare packages if your code is in a src/ layout
-packages = [{ include = "pysrc"}]
+packages = [
+    { include = "wrapped_example", from = "wrapped_example_py" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -21,16 +23,9 @@ tabulate = "*"
 scikit-learn = "*"
 polars = "*"
 # yfinance = "*"
-maturin = "*"
+maturin = {version = "*", extras=["patchelf"]}
 
-# [build-system]
-# requires = ["poetry-core>=2.0.0"]
-# build-backend = "poetry.core.masonry.api"
 
 [build-system]
-requires = ["maturin>=1.0,<2.0"]
-build-backend = "maturin"
-
-[tool.maturin]
-# point maturin at your Rust crate
-manifest-path = "wrapped_example/Cargo.toml"
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"

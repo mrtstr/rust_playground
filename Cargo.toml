@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "cli_example",
-    "wrapped_example"
+    "wrapped_example_rs"
 ]
 
 # Optional: prevent Cargo from searching for crates in other folders

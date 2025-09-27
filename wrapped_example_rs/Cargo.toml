@@ -1,12 +1,13 @@
 [package]
-name = "example-wrapped"
+name = "wrapped_example"
 version = "0.1.0"
 edition = "2021"
 description = "A sample Rust project"
 license = "MIT"
 
+
 [lib]
-name = "rustpy"                  # <-- must match #[pymodule] fn rustpy(...)
+name = "_wrapped_example"                  # <-- must match #[pymodule] fn _wrapped_example(...)
 crate-type = ["cdylib"]          # <-- important
 
 [dependencies]
@@ -46,31 +47,6 @@ opendal = "*"
 # --- NumPy-like arrays ---
 ndarray = { version = "0.16.0", features = ["approx", "rayon"] }   # n-d arrays + parallel iter (via rayon)
 ndarray-linalg = "0.17.0"                                          # BLAS/LAPACK-based linalg (SVD, eig, etc.)
-
-# # --- Random & statistics ---
-# rand = "0.9.2"
-# rand_distr = "0.5.1"
-# statrs = "0.18.0"                                                  # distributions, basic tests, stats
-
-# --- Optimization ---
-# argmin = "*"           # solvers (GD, BFGS, LBFGS, Newton, etc.)
-
-# # --- FFT / signal processing ---
-# rustfft = "6"
-# realfft = "3"
-
-# # --- Sparse matrices ---
-# sprs = "0.11"
-
-# # --- Integration / ODEs ---
-# quad = "0.1.2"                                                     # numerical integration (1D)
-
-# # --- Parallelism & perf ---
-# rayon = "1.10"
-
-# # --- (Optional) plotting & ML ---
-# plotters = "0.3"                                                 # plotting
-# # linfa = "0.7"                                                    # scikit-learn-ish ML toolkit (optional)
 
 
 [dev-dependencies]
