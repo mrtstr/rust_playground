@@ -1999,21 +1999,21 @@ files = [
 ]
 
 [[package]]
-name = "wrapped_example_core"
+name = "wrapped-example"
 version = "0.1.0"
-description = "A sample Rust project"
+description = ""
 optional = false
-python-versions = "*"
+python-versions = ">=3.9"
 groups = ["prod"]
 files = [
-    {file = "wrapped_example_core-0.1.0-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:bc26b870315d3504ebe0cbed34edf34c0a0aad221aac550651f64e5b41aa3919"},
+    {file = "wrapped_example-0.1.0-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:2ad7a7029d15b2a2f1ebeb65f21ee13c009f6b6d8302c7d1e18a87460657b48e"},
 ]
 
 [package.source]
 type = "file"
-url = "dist/wrapped_example_core-0.1.0-cp312-cp312-musllinux_1_2_x86_64.whl"
+url = "dist/wrapped_example-0.1.0-cp39-abi3-musllinux_1_2_x86_64.whl"
 
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "53ea2104fd0de9fddafb3b829f4fa762e3855cc9ed220b82e01d86c597829e3d"
+content-hash = "c903f8b053fd8d6bc9226b51710ae48e03c91d06f5fd5869e844016d935e90e8"

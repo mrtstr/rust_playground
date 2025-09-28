@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "python_package"
+name = "main_py_repo"
 version = "0.1.0"
 description = ""
 authors = ["mrtstr <martin0strauch@gmail.com>"]
@@ -8,7 +8,7 @@ readme = "README.md"
 # packages = [
 #     { include = "wrapped_example", from = "wrapped_example_py" },
 # ]
-
+packages = [{ include = "pycode"},]
 [tool.poetry.dependencies]
 python = "^3.12"
 pyyaml = "^6.0.2"
@@ -31,7 +31,7 @@ pre-commit = "*"
 optional = true
 
 [tool.poetry.group.prod.dependencies]
-wrapped_example_core = { path = "dist/wrapped_example_core-0.1.0-cp312-cp312-musllinux_1_2_x86_64.whl" }
+wrapped_example = { path = "dist/wrapped_example-0.1.0-cp39-abi3-musllinux_1_2_x86_64.whl" }
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]
