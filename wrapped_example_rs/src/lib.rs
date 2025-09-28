@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 use pyo3_polars::PyDataFrame;
 use polars::prelude::*;
 use eyre::Result;
+use rayon::prelude::*;
 
 #[pyfunction]
 #[pyo3(signature = (pydf, col_name="score", out_name=None))]
@@ -23,9 +24,37 @@ fn df_sum_scores(pydf: PyDataFrame, col_name: &str, out_name: Option<&str>) -> P
     Ok(PyDataFrame(out))
 }
 
+fn per_partition(df: DataFrame) -> Result<DataFrame> {
+    let out = df.lazy()
+        .select([
+            col("score").sum().alias("score_sum"),
+            col("age").sum().alias("age_sum"),
+        ])
+        .collect()?;
+    Ok(out)
+}
+
+#[pyfunction]
+#[pyo3(signature = (pydf, part_col_name="score"))]
+fn group_process(pydf: PyDataFrame, part_col_name: &str) -> PyResult<PyDataFrame> {
+    let df = pydf.0;
+    let out = (|| -> Result<DataFrame> {
+        let parts: Vec<DataFrame> = df.partition_by([part_col_name], true)?;
+
+        let processed: Vec<DataFrame> = parts
+            .into_par_iter()
+            .map(per_partition)
+            .collect::<Result<_>>()?;
+
+        let out:DataFrame  = polars::functions::concat_df_diagonal(&processed)?;
+        Ok(out)
+    })()?;
+    Ok(PyDataFrame(out))
+}
 
 #[pymodule]
 fn wrapped_example_core(_py: Python<'_>, m: &Bound<PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(df_sum_scores, m)?)?;
+    m.add_function(wrap_pyfunction!(group_process, m)?)?;
     Ok(())
 }
