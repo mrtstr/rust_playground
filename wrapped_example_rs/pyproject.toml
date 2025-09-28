@@ -1,0 +1,23 @@
+[build-system]
+requires = ["maturin>=1.7,<2"]
+build-backend = "maturin"
+
+[project]
+name = "wrapped-example"                   # top-level Python package
+dynamic = ["version"]
+requires-python = ">=3.9"
+readme = "README.md"
+license = { text = "MIT" }
+
+[tool.maturin]
+bindings = "pyo3"
+python-source = "python_code"
+module-name = "wrapped_example.wrapped_example_core"      # <—— compiled extension import path
+auditwheel = "repair"
+strip = true
+include = [
+  "README.*",
+  "LICENSE*",
+  { path = "python_code/**", format = ["sdist", "wheel"] },
+]
+universal2 = true

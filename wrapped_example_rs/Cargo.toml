@@ -22,7 +22,7 @@ rayon = "*"
 # --- dataframes ---
 arrow = "*"
 # Match pyo3-polars' pyo3 (0.25 as of 0.24.0)
-pyo3 = { version = "0.25", features = ["extension-module", "eyre"] }
+pyo3 = { version = "0.25", features = ["extension-module", "eyre", "abi3-py39"] }
 eyre = "0.6"
 # pyo3-polars 0.24.0 (enable lazy if you need it)
 pyo3-polars = { version = "0.24.0", features = ["lazy"] }
