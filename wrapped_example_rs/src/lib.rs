@@ -35,8 +35,26 @@ fn per_partition(df: DataFrame) -> Result<DataFrame> {
 }
 
 #[pyfunction]
-#[pyo3(signature = (pydf, part_col_name="score"))]
-fn group_process(pydf: PyDataFrame, part_col_name: &str) -> PyResult<PyDataFrame> {
+#[pyo3(signature = (pydf, part_col_name))]
+fn group_process(py: Python<'_>, pydf: PyDataFrame, part_col_name: &str) -> PyResult<PyDataFrame> {
+    let df = pydf.0;
+    let out = py.allow_threads(move || -> Result<DataFrame> {
+        let parts: Vec<DataFrame> = df.partition_by([part_col_name], true)?;
+
+        let processed: Vec<DataFrame> = parts
+            .into_par_iter()
+            .map(per_partition)
+            .collect::<Result<_>>()?;
+
+        let out:DataFrame  = polars::functions::concat_df_diagonal(&processed)?;
+        Ok(out)
+    })?;
+    Ok(PyDataFrame(out))
+}
+
+#[pyfunction]
+#[pyo3(signature = (pydf, part_col_name))]
+fn group_process_gil(pydf: PyDataFrame, part_col_name: &str) -> PyResult<PyDataFrame> {
     let df = pydf.0;
     let out = (|| -> Result<DataFrame> {
         let parts: Vec<DataFrame> = df.partition_by([part_col_name], true)?;
@@ -56,5 +74,6 @@ fn group_process(pydf: PyDataFrame, part_col_name: &str) -> PyResult<PyDataFrame
 fn wrapped_example_core(_py: Python<'_>, m: &Bound<PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(df_sum_scores, m)?)?;
     m.add_function(wrap_pyfunction!(group_process, m)?)?;
+    m.add_function(wrap_pyfunction!(group_process_gil, m)?)?;
     Ok(())
 }
