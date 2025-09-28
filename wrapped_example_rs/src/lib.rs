@@ -109,6 +109,9 @@ fn per_partition(df: DataFrame) -> Result<DataFrame> {
 //     Ok(out)
 // }
 
+/// Sum a "score" column and return a one-row DataFrame with the total.
+///
+/// This is just an example docstring that will appear in Python's `help()`.
 #[pyfunction]
 #[pyo3(signature = (pydf, part_col_name))]
 fn group_process(py: Python<'_>, pydf: PyDataFrame, part_col_name: &str) -> PyResult<PyDataFrame> {
@@ -149,7 +152,10 @@ fn group_process_gil(pydf: PyDataFrame, part_col_name: &str) -> PyResult<PyDataF
 #[pymodule]
 fn wrapped_example_core(_py: Python<'_>, m: &Bound<PyModule>) -> PyResult<()> {
     init_logging();
-
+    m.add(
+        "__doc__",
+        "wrapped_example_core: fast Rust routines exposed to Python.",
+    )?;
     m.add_function(wrap_pyfunction!(df_sum_scores, m)?)?;
     m.add_function(wrap_pyfunction!(group_process, m)?)?;
     m.add_function(wrap_pyfunction!(group_process_gil, m)?)?;

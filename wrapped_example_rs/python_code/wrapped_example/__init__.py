@@ -7,4 +7,5 @@ This package re-exports everything from the compiled module `wrapped_example._co
 """
 
 from .wrapped_example_core import *  # noqa: F401,F403  (re-export public symbols)
-from .python_code import *       # your Python code
+from .python_code import hello as hello       #  noqa: F401,F403
+from .wrapped_example_core import group_process as group_process  # or from ._core if you renamed it
