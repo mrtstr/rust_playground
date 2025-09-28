@@ -35,6 +35,12 @@ polars = { version = "0.51", default-features = false, features = [
   "diagonal_concat",
   "dtype-array"      # <-- IMPORTANT
 ] }
+
+
+# logging
+log = "*"
+env_logger = "*"
+
 # --- IO helpers ---
 csv = "1"                                                        # data IO
 serde = { version = "1", features = ["derive"] }

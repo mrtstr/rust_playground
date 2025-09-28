@@ -3,6 +3,20 @@ use pyo3_polars::PyDataFrame;
 use polars::prelude::*;
 use eyre::Result;
 use rayon::prelude::*;
+use std::sync::Once;
+use log::{info, warn, error};
+
+static INIT: Once = Once::new();
+
+fn init_logging() {
+    INIT.call_once(|| {
+        env_logger::Builder::from_env(
+            env_logger::Env::default().default_filter_or("info")  // default = info
+        )
+        .format_timestamp_millis()
+        .init();
+    });
+}
 
 #[pyfunction]
 #[pyo3(signature = (pydf, col_name="score", out_name=None))]
@@ -67,13 +81,17 @@ fn group_process_gil(pydf: PyDataFrame, part_col_name: &str) -> PyResult<PyDataF
         let out:DataFrame  = polars::functions::concat_df_diagonal(&processed)?;
         Ok(out)
     })()?;
+    info!("All parts processed");
     Ok(PyDataFrame(out))
 }
 
 #[pymodule]
 fn wrapped_example_core(_py: Python<'_>, m: &Bound<PyModule>) -> PyResult<()> {
+    init_logging();
+
     m.add_function(wrap_pyfunction!(df_sum_scores, m)?)?;
     m.add_function(wrap_pyfunction!(group_process, m)?)?;
     m.add_function(wrap_pyfunction!(group_process_gil, m)?)?;
+    info!("wrapped_example_core module initialized");
     Ok(())
 }
