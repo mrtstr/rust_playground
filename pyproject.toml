@@ -5,9 +5,9 @@ description = ""
 authors = ["mrtstr <martin0strauch@gmail.com>"]
 readme = "README.md"
 # optional: explicitly declare packages if your code is in a src/ layout
-packages = [
-    { include = "wrapped_example", from = "wrapped_example_py" },
-]
+# packages = [
+#     { include = "wrapped_example", from = "wrapped_example_py" },
+# ]
 
 [tool.poetry.dependencies]
 python = "^3.12"
