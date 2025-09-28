@@ -144,3 +144,4 @@ target/
 #.idea/
 
 *.ipynb
+*.parquet

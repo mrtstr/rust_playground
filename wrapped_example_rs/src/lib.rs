@@ -39,14 +39,66 @@ fn df_sum_scores(pydf: PyDataFrame, col_name: &str, out_name: Option<&str>) -> P
 }
 
 fn per_partition(df: DataFrame) -> Result<DataFrame> {
-    let out = df.lazy()
-        .select([
-            col("score").sum().alias("score_sum"),
-            col("age").sum().alias("age_sum"),
-        ])
-        .collect()?;
+    // --- age ---
+    let age_col = df.column("age")?
+        .cast(&DataType::Float64)?; // ensure consistent dtype
+    let age_ca = age_col.f64()?;    // ChunkedArray<Float64>
+
+    // Access the Arrow chunks as slices
+    let age_sum: f64 = age_ca.downcast_iter()
+        .flat_map(|arr| arr.values().as_slice())
+        .copied()
+        .sum();
+
+    // --- score ---
+    let score_col = df.column("score")?
+        .cast(&DataType::Float64)?;
+    let score_ca = score_col.f64()?;
+
+    let score_sum: f64 = score_ca.downcast_iter()
+        .flat_map(|arr| arr.values().as_slice())
+        .copied()
+        .sum();
+
+    // Wrap back into a one-row DataFrame
+    let out = df!(
+        "age" => [age_sum],
+        "score" => [score_sum],
+    )?;
     Ok(out)
 }
+
+// fn per_partition(df: DataFrame) -> Result<DataFrame> {
+
+//     let age_col = df
+//         .column("age")?
+//         // .map_err(|e| eyre!("missing 'score' column: {e}"))? // add manually context
+//         .cast(&DataType::Float64)?;
+//     let score_col = df
+//         .column("score")?
+//         // .map_err(|e| eyre!("missing 'score' column: {e}"))? // add manually context
+//         .cast(&DataType::Float64)?;
+
+//     let age_sum: f64 = age_col.f64()?.sum().unwrap_or(0.0);
+//     let score_sum: f64 = score_col.f64()?.sum().unwrap_or(0.0);
+
+
+//     let out = df!(
+//         "age" => [age_sum],
+//         "score" => [score_sum],
+//     )?;
+//     Ok(out)
+// }
+
+// fn per_partition(df: DataFrame) -> Result<DataFrame> {
+//     let out = df.lazy()
+//         .select([
+//             col("score").sum().alias("score_sum"),
+//             col("age").sum().alias("age_sum"),
+//         ])
+//         .collect()?;
+//     Ok(out)
+// }
 
 #[pyfunction]
 #[pyo3(signature = (pydf, part_col_name))]
