@@ -1,17 +1,18 @@
+use eyre::Result;
+use polars::prelude::*;
 use pyo3::prelude::*;
 use pyo3_polars::PyDataFrame;
-use polars::prelude::*;
-use eyre::Result;
 use rayon::prelude::*;
 use std::sync::Once;
-use log::{info, warn, error};
+// use log::{info, warn, error};
+use log::info;
 
 static INIT: Once = Once::new();
 
 fn init_logging() {
     INIT.call_once(|| {
         env_logger::Builder::from_env(
-            env_logger::Env::default().default_filter_or("info")  // default = info
+            env_logger::Env::default().default_filter_or("info"), // default = info
         )
         .format_timestamp_millis()
         .init();
@@ -20,42 +21,50 @@ fn init_logging() {
 
 #[pyfunction]
 #[pyo3(signature = (pydf, col_name="score", out_name=None))]
-fn df_sum_scores(pydf: PyDataFrame, col_name: &str, out_name: Option<&str>) -> PyResult<PyDataFrame> {
+fn df_sum_scores(
+    pydf: PyDataFrame,
+    col_name: &str,
+    out_name: Option<&str>,
+) -> PyResult<PyDataFrame> {
     // Inner block returns eyre::Result<_>; `?` works everywhere.
     let out = (|| -> Result<DataFrame> {
-        let col = pydf.0
+        let col = pydf
+            .0
             .column(col_name)?
             // .map_err(|e| eyre!("missing 'score' column: {e}"))? // add manually context
             .cast(&DataType::Float64)?;
 
         let sum: f64 = col.f64()?.sum().unwrap_or(0.0);
-        let out_name_owned = out_name.map(str::to_string).unwrap_or_else(|| format!("{col_name}_sum"));
+        let out_name_owned = out_name
+            .map(str::to_string)
+            .unwrap_or_else(|| format!("{col_name}_sum"));
         let out = df!(out_name_owned => [sum])?;
         Ok(out)
     })()?;
     // add rust stack trace with the following
-    // })().map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{e:#}\n\n[Rust backtrace]\n{}", std::backtrace::Backtrace::capture())))?; 
+    // })().map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{e:#}\n\n[Rust backtrace]\n{}", std::backtrace::Backtrace::capture())))?;
     Ok(PyDataFrame(out))
 }
 
+// function in plain rust
 fn per_partition(df: DataFrame) -> Result<DataFrame> {
     // --- age ---
-    let age_col = df.column("age")?
-        .cast(&DataType::Float64)?; // ensure consistent dtype
-    let age_ca = age_col.f64()?;    // ChunkedArray<Float64>
+    let age_col = df.column("age")?.cast(&DataType::Float64)?; // ensure consistent dtype
+    let age_ca = age_col.f64()?; // ChunkedArray<Float64>
 
     // Access the Arrow chunks as slices
-    let age_sum: f64 = age_ca.downcast_iter()
+    let age_sum: f64 = age_ca
+        .downcast_iter()
         .flat_map(|arr| arr.values().as_slice())
         .copied()
         .sum();
 
     // --- score ---
-    let score_col = df.column("score")?
-        .cast(&DataType::Float64)?;
+    let score_col = df.column("score")?.cast(&DataType::Float64)?;
     let score_ca = score_col.f64()?;
 
-    let score_sum: f64 = score_ca.downcast_iter()
+    let score_sum: f64 = score_ca
+        .downcast_iter()
         .flat_map(|arr| arr.values().as_slice())
         .copied()
         .sum();
@@ -68,8 +77,8 @@ fn per_partition(df: DataFrame) -> Result<DataFrame> {
     Ok(out)
 }
 
+// using eager api
 // fn per_partition(df: DataFrame) -> Result<DataFrame> {
-
 //     let age_col = df
 //         .column("age")?
 //         // .map_err(|e| eyre!("missing 'score' column: {e}"))? // add manually context
@@ -82,7 +91,6 @@ fn per_partition(df: DataFrame) -> Result<DataFrame> {
 //     let age_sum: f64 = age_col.f64()?.sum().unwrap_or(0.0);
 //     let score_sum: f64 = score_col.f64()?.sum().unwrap_or(0.0);
 
-
 //     let out = df!(
 //         "age" => [age_sum],
 //         "score" => [score_sum],
@@ -90,6 +98,7 @@ fn per_partition(df: DataFrame) -> Result<DataFrame> {
 //     Ok(out)
 // }
 
+// using polars lazy api
 // fn per_partition(df: DataFrame) -> Result<DataFrame> {
 //     let out = df.lazy()
 //         .select([
@@ -112,7 +121,7 @@ fn group_process(py: Python<'_>, pydf: PyDataFrame, part_col_name: &str) -> PyRe
             .map(per_partition)
             .collect::<Result<_>>()?;
 
-        let out:DataFrame  = polars::functions::concat_df_diagonal(&processed)?;
+        let out: DataFrame = polars::functions::concat_df_diagonal(&processed)?;
         Ok(out)
     })?;
     Ok(PyDataFrame(out))
@@ -130,7 +139,7 @@ fn group_process_gil(pydf: PyDataFrame, part_col_name: &str) -> PyResult<PyDataF
             .map(per_partition)
             .collect::<Result<_>>()?;
 
-        let out:DataFrame  = polars::functions::concat_df_diagonal(&processed)?;
+        let out: DataFrame = polars::functions::concat_df_diagonal(&processed)?;
         Ok(out)
     })()?;
     info!("All parts processed");

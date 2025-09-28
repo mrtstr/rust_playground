@@ -25,6 +25,7 @@ scikit-learn = "*"
 polars = "*"
 # yfinance = "*"
 maturin = {version = "*", extras=["patchelf"]}
+pre-commit = "*"
 
 [tool.poetry.group.prod]
 optional = true

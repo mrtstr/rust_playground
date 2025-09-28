@@ -1,11 +1,13 @@
 use clap::{Parser, ValueEnum};
-use polars::prelude::{DataFrame, PolarsResult, ParquetCompression, ParquetReader, ParquetWriter, SerReader};
+use polars::prelude::{
+    DataFrame, ParquetCompression, ParquetReader, ParquetWriter, PolarsResult, SerReader,
+};
 use std::fs::File;
 use std::path::Path;
 
+use color_eyre::eyre::{Result, WrapErr};
 use polars::prelude::*;
 use rayon::prelude::*;
-use color_eyre::eyre::{WrapErr, Result};
 
 /// A minimal calculator CLI
 #[derive(Parser, Debug)]
@@ -17,7 +19,6 @@ struct Cli {
     // /// Partition columns (use multiple values)
     // #[arg(long, num_args = 1..)]
     // part_columns: Vec<String>,
-
     /// Operation to apply
     #[arg(long, value_enum, default_value_t = Op::Read)]
     op: Op,
@@ -44,12 +45,13 @@ fn write_parquet(df: &mut DataFrame, path: impl AsRef<Path>) -> color_eyre::eyre
     let file = File::create(path)?;
     ParquetWriter::new(file)
         .with_compression(ParquetCompression::Snappy)
-        .finish(df)?;  // <-- mutable
+        .finish(df)?; // <-- mutable
     Ok(())
 }
 
 fn per_partition(df: DataFrame) -> Result<DataFrame> {
-    let out = df.lazy()
+    let out = df
+        .lazy()
         .select([
             col("score").sum().alias("score_sum"),
             col("age").sum().alias("age_sum"),
@@ -67,21 +69,22 @@ fn main() -> color_eyre::eyre::Result<()> {
     if args.op == Op::Read {
         let file = File::open(p)?;
         let reader = std::io::BufReader::new(file);
-        let my_df: DataFrame = ParquetReader::new(reader).finish()?;  // memory buffer that can speed things up
-        // let my_df: DataFrame = ParquetReader::new(file).finish()?; // no buffer
+        let my_df: DataFrame = ParquetReader::new(reader).finish()?; // memory buffer that can speed things up
+                                                                     // let my_df: DataFrame = ParquetReader::new(file).finish()?; // no buffer
         println!("read dataframe {my_df}");
     } else if args.op == Op::Process {
         let df = create_df()?;
-        let parts: Vec<DataFrame> = df.partition_by(["city"], true)
+        let parts: Vec<DataFrame> = df
+            .partition_by(["city"], true)
             .wrap_err("partition_by(city) failed")?;
-    
+
         let processed: Vec<DataFrame> = parts
             .into_par_iter()
             .map(per_partition)
             .collect::<Result<_>>()?;
-    
-        let out:DataFrame  = polars::functions::concat_df_diagonal(&processed)
-            .wrap_err("concat_df failed")?;
+
+        let out: DataFrame =
+            polars::functions::concat_df_diagonal(&processed).wrap_err("concat_df failed")?;
         println!("{out}");
     } else {
         let mut my_df = create_df()?;
@@ -89,8 +92,9 @@ fn main() -> color_eyre::eyre::Result<()> {
         println!("Wrote parquet to {}", p.display());
     }
 
-
-    println!("Sucessfully executed operation {:?} on path {}", args.op, args.path);
+    println!(
+        "Sucessfully executed operation {:?} on path {}",
+        args.op, args.path
+    );
     Ok(())
 }
-

@@ -1,0 +1,49 @@
+repos:
+  # - repo: https://github.com/doublify/pre-commit-rust
+  #   rev: v1.0
+  #   hooks:
+  #   -   id: cargo-check
+  #       args: ["--workspace"]
+  #   -   id: fmt
+  #       args: ["--", "--check"]
+  #   -   id: clippy
+  #       args: ["--", "-D", "warnings"]
+  - repo: local
+    hooks:
+      # Auto-format the whole workspace (modifies files)
+      - id: cargo-fmt
+        name: cargo fmt (auto-fix)
+        entry: bash -c 'cargo fmt && git add -A'
+        language: system
+        pass_filenames: false
+        types: [rust]
+
+      # Enforce formatting (fails if anything still unformatted)
+      - id: cargo-fmt-check
+        name: cargo fmt --check
+        entry: bash -c 'cargo fmt -- --check'
+        language: system
+        pass_filenames: false
+        types: [rust]
+
+      - id: cargo-clippy
+        name: cargo clippy -D warnings
+        entry: bash -c 'cargo clippy --workspace -- -D warnings'
+        language: system
+        pass_filenames: false
+        types: [rust]
+
+      - id: cargo-check
+        name: cargo check
+        entry: bash -c 'cargo check --workspace'
+        language: system
+        pass_filenames: false
+        types: [rust]
+  # Optional: catch common text file issues
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-toml
+      - id: check-yaml
