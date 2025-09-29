@@ -7,7 +7,7 @@ license = "MIT"
 
 
 [lib]
-name = "wrapped_example_core"                  # <-- must match #[pymodule] fn wrapped_example_core(...)
+name = "wrapped_example_core"    # <-- must match #[pymodule] fn wrapped_example_core(...) if pyproject.[tool.maturin].module-name is not set
 crate-type = ["cdylib"]          # <-- important
 
 [dependencies]

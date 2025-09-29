@@ -3,7 +3,7 @@ requires = ["maturin>=1.7,<2"]
 build-backend = "maturin"
 
 [project]
-name = "wrapped-example"                   # top-level Python package
+name = "wrapped-example"  # used for e.g. pip install
 dynamic = ["version"]
 requires-python = ">=3.9"
 readme = "README.md"
@@ -12,9 +12,18 @@ license = { text = "MIT" }
 [tool.maturin]
 bindings = "pyo3"
 python-source = "python_code"
-module-name = "wrapped_example.wrapped_example_core"      # <—— compiled extension import path
+# features = ["wrapped_example"] # only select these packages from the python-source folder (default all)
+
+# Controls the import path of the compiled extension inside your wheel
+# (where to put the compiled python module)
+# <rust pymodule name> must match module name in #[pymodule]
+# <package name> must be a valid package name in the python-source folder
+module-name = "wrapped_example.wrapped_example_core"      # <package name>.<rust pymodule name>
+# top level extension:
+# module-name = "wrapped_example_core"
 auditwheel = "repair"
 strip = true
+# add files that should be included
 include = [
   "README.*",
   "LICENSE*",
