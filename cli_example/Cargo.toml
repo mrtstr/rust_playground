@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 description = "A sample Rust project"
 license = "MIT"
-
+rust-version.workspace = true
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
