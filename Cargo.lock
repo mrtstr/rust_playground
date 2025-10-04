@@ -1893,6 +1893,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "example-cli-basic"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "arrow",
+ "chrono",
+ "clap",
+ "color-eyre",
+ "criterion",
+ "csv",
+ "parquet",
+ "polars",
+ "rayon",
+ "serde",
+ "tokio",
+]
+
+[[package]]
 name = "eyre"
 version = "0.6.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
