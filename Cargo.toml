@@ -3,7 +3,8 @@ resolver = "3"
 members = [
     "cli_example",
     "cli_example_basic",
-    "wrapped_example_rs"
+    "wrapped_example_rs",
+    "data_structures"
 ]
 
 # Optional: prevent Cargo from searching for crates in other folders
